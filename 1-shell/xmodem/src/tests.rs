@@ -159,6 +159,7 @@ fn test_raw_transmission() {
     let mut output = [0u8; 256];
     (0..256usize).into_iter().enumerate().for_each(|(i, b)| input[i] = b as u8);
 
+    println!("{:?}", &input[..]);
     let (mut tx, mut rx) = pipe();
     let tx_thread = std::thread::spawn(move || {
         Xmodem::transmit(&input[..], &mut rx).expect("transmit okay");
@@ -213,7 +214,7 @@ fn test_bad_control() {
 
     let e = Xmodem::new(Cursor::new(vec![0, 0xFF]))
         .read_packet(&mut packet[..])
-        .expect_err("bad contorl");
+        .expect_err("bad control");
 
     assert_eq!(e.kind(), io::ErrorKind::InvalidData);
 }
@@ -224,6 +225,6 @@ fn test_eot() {
     Xmodem::new(Cursor::new(buffer.as_mut_slice()))
         .write_packet(&[])
         .expect("write empty buf for EOT");
-
+    println!("{:?}",&buffer[..]);
     assert_eq!(&buffer[..], &[NAK, EOT, NAK, EOT, ACK]);
 }

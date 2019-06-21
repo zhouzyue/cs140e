@@ -55,4 +55,8 @@ fn main() {
     let mut serial = serial::open(&opt.tty_path).expect("path points to invalid TTY");
 
     // FIXME: Implement the `ttywrite` utility.
+    let stdin = io::stdin();
+    let mut buf = String::new();
+    stdin.read_line(&mut buf);
+//    serial.write()
 }
