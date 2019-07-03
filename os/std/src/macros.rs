@@ -61,13 +61,14 @@
 
 // #[macro_export]
 // #[stable(feature = "rust1", since = "1.0.0")]
-// #[allow_internal_unstable]
+// #[allow_internal_unstable(__rust_unstable_column)]
 // macro_rules! panic {
 //     () => ({
 //         panic!("explicit panic")
 //     });
 //     ($msg:expr) => ({
-//         $crate::rt::begin_panic($msg, &(file!(), line!(), __rust_unstable_column!()))
+//        core::rt::begin_panic($msg, &(file!(), line!(), __rust_unstable_column!()))
+////         c::rt::begin_panic($msg, &(file!(), line!(), __rust_unstable_column!()))
 //     });
 //     ($fmt:expr, $($arg:tt)+) => ({
 //         $crate::rt::begin_panic_fmt(&format_args!($fmt, $($arg)+),
@@ -702,6 +703,13 @@ pub mod builtin {
     #[stable(feature = "rust1", since = "1.0.0")]
     #[macro_export]
     macro_rules! include { ($file:expr) => ({ /* compiler built-in */ }) }
+
+    #[macro_export]
+    #[stable(feature = "rust1", since = "1.0.0")]
+    macro_rules! unimplemented {
+        () => (panic!("not yet implemented"));
+        ($($arg:tt)+) => (panic!("not yet implemented: {}", format_args!($($arg)*)));
+    }
 }
 
 ///// A macro for defining #[cfg] if-else statements.
@@ -738,4 +746,11 @@ pub mod builtin {
 //    ($m:meta, $($it:item)*) => {
 //        $(#[$m] $it)*
 //    }
+//}
+
+//#[macro_export]
+//#[stable(feature = "rust1", since = "1.0.0")]
+//macro_rules! unimplemented {
+//    () => (panic!("not yet implemented"));
+//    ($($arg:tt)+) => (panic!("not yet implemented: {}", format_args!($($arg)*)));
 //}

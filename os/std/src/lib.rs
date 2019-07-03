@@ -8,100 +8,59 @@
 
 // std is implemented with unstable features, many of which are internal
 // compiler details that will never be stable
-#![feature(alloc)]
 #![feature(allocator_api)]
-#![feature(alloc_system)]
 #![feature(allocator_internals)]
 #![feature(allow_internal_unsafe)]
 #![feature(allow_internal_unstable)]
-#![feature(align_offset)]
 #![feature(array_error_internals)]
-#![feature(ascii_ctype)]
 #![feature(asm)]
-#![feature(attr_literals)]
 #![feature(box_syntax)]
 #![feature(cfg_target_has_atomic)]
 #![feature(cfg_target_thread_local)]
-#![feature(cfg_target_vendor)]
 #![feature(char_error_internals)]
-#![feature(char_internals)]
-#![feature(collections_range)]
 #![feature(compiler_builtins_lib)]
 #![feature(const_fn)]
-#![feature(core_float)]
 #![feature(core_intrinsics)]
 #![feature(dropck_eyepatch)]
 #![feature(exact_size_is_empty)]
-#![feature(fs_read_write)]
 #![feature(fixed_size_array)]
-#![feature(float_from_str_radix)]
 #![feature(fn_traits)]
-#![feature(fnbox)]
 #![feature(fused)]
-#![feature(generic_param_attrs)]
-#![feature(hashmap_hasher)]
-#![feature(heap_api)]
 #![feature(i128)]
-#![feature(i128_type)]
-#![feature(inclusive_range)]
 #![feature(int_error_internals)]
 #![feature(integer_atomics)]
-#![feature(into_cow)]
 #![feature(lang_items)]
 #![feature(libc)]
 #![feature(link_args)]
 #![feature(linkage)]
-#![feature(macro_reexport)]
-#![feature(macro_vis_matcher)]
 #![feature(needs_panic_runtime)]
 #![feature(never_type)]
-#![feature(num_bits_bytes)]
-#![feature(old_wrapping)]
 #![feature(on_unimplemented)]
-#![feature(oom)]
 #![feature(optin_builtin_traits)]
-#![feature(panic_unwind)]
-#![feature(peek)]
-#![feature(placement_in_syntax)]
-#![feature(placement_new_protocol)]
 #![feature(prelude_import)]
 #![feature(ptr_internals)]
-#![feature(rand)]
 #![feature(raw)]
-#![feature(repr_align)]
 #![feature(rustc_attrs)]
-#![feature(sip_hash_13)]
-#![feature(slice_bytes)]
-#![feature(slice_concat_ext)]
 #![feature(slice_internals)]
 #![feature(slice_patterns)]
 #![feature(staged_api)]
 #![feature(stmt_expr_attributes)]
-#![feature(str_char)]
 #![feature(str_internals)]
-#![feature(str_utf16)]
-#![feature(termination_trait)]
 #![feature(test, rustc_private)]
 #![feature(thread_local)]
-#![feature(toowned_clone_into)]
-#![feature(try_from)]
 #![feature(unboxed_closures)]
-#![feature(unicode)]
 #![feature(untagged_unions)]
 #![feature(unwind_attributes)]
-#![feature(vec_push_all)]
 #![feature(doc_cfg)]
 #![feature(doc_masked)]
 #![feature(doc_spotlight)]
 
 // TODO: These are additions.
-#![feature(core_slice_ext)]
-#![feature(core_str_ext)]
 #![feature(pattern)]
 #![feature(slice_get_slice)]
 #![feature(slice_rsplit)]
 #![feature(from_ref)]
-#![feature(swap_with_slice)]
+#![feature(core_panic_info)]
 
 // Explicitly import the prelude. The compiler uses this same unstable attribute
 // to import the prelude implicitly when building crates that depend on std.
@@ -116,15 +75,19 @@ use prelude::v1::*;
 // We want to re-export a few macros from core but libcore has already been
 // imported by the compiler (via our #[no_std] attribute) In this case we just
 // add a new crate name so we can attach the re-exports to it.
-#[macro_reexport(panic, assert, assert_eq, assert_ne, debug_assert, debug_assert_eq,
-                 debug_assert_ne, unreachable, unimplemented, write, writeln, try)]
+//#[macro_reexport(panic, assert, assert_eq, assert_ne, debug_assert, debug_assert_eq,
+//                 debug_assert_ne, unreachable, unimplemented, write, writeln, try)]
+//#[]
+//pub use core::{panic,  assert_eq, assert_ne, debug_assert, debug_assert_eq,
+//                 debug_assert_ne, unreachable, unimplemented, write, writeln, try};
+//#[macro_use]
 extern crate core as __core;
 
 // #[macro_use]
 // #[macro_reexport(vec, format)]
 // extern crate alloc;
 // extern crate alloc_system;
-extern crate std_unicode;
+//extern crate std_unicode;
 // #[doc(masked)]
 // extern crate libc;
 
@@ -134,8 +97,8 @@ extern crate std_unicode;
 // extern crate unwind;
 
 // compiler-rt intrinsics
-#[doc(masked)]
-extern crate compiler_builtins;
+//#[doc(masked)]
+//extern crate compiler_builtins;
 
 // // During testing, this crate is not actually the "real" std library, but rather
 // // it links to the real std library, which was compiled from this same source
@@ -225,8 +188,8 @@ pub use core::fmt;
 // pub use alloc::string;
 // #[stable(feature = "rust1", since = "1.0.0")]
 // pub use alloc::vec;
-#[stable(feature = "rust1", since = "1.0.0")]
-pub use std_unicode::char;
+//#[stable(feature = "rust1", since = "1.0.0")]
+//pub use std_unicode::char;
 #[unstable(feature = "i128", issue = "35118")]
 pub use core::u128;
 

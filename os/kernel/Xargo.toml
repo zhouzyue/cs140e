@@ -1,6 +1,5 @@
 [dependencies]
 core = {}
-std_unicode = {}
 
 [dependencies.compiler_builtins]
 features = ["mem"]

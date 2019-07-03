@@ -1,5 +1,6 @@
 use stack_vec::StackVec;
 use console::{kprint, kprintln, CONSOLE};
+use std::str;
 
 /// Error type for `Command` parse failures.
 #[derive(Debug)]
@@ -36,12 +37,29 @@ impl<'a> Command<'a> {
 
     /// Returns this command's path. This is equivalent to the first argument.
     fn path(&self) -> &str {
-        unimplemented!()
+        self.args[0]
     }
 }
 
 /// Starts a shell using `prefix` as the prefix for each line. This function
 /// never returns: it is perpetually in a shell loop.
 pub fn shell(prefix: &str) -> ! {
-    unimplemented!()
+    let mut buf_storage = [0u8; 1024];
+    let mut buf = StackVec::new(&mut buf_storage);
+    loop {
+        let mut console = CONSOLE.lock();
+        let byte = console.read_byte();
+        if byte == 8 || byte == 127 {
+            kprint!(" ");
+            console.write_byte(byte);
+        } else if byte == b'\r' || byte == b'\n' {
+            kprintln!("");
+//            buf.push(byte);
+            let mut commands = [""; 64];
+            Command::parse(str::from_utf8(buf.as_slice()).unwrap(), &mut commands);
+            kprintln!("{}", prefix);
+        } else {
+            console.write_byte(byte);
+        }
+    }
 }
