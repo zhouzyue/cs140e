@@ -53,7 +53,6 @@ pub fn shell(prefix: &str) -> ! {
             kprint!(" ");
             console.write_byte(byte);
         } else if byte == b'\r' || byte == b'\n' {
-            kprintln!("");
 //            buf.push(byte);
             let mut commands = [""; 64];
             Command::parse(str::from_utf8(buf.as_slice()).unwrap(), &mut commands);

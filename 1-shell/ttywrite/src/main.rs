@@ -1,7 +1,8 @@
 extern crate serial;
 extern crate structopt;
 extern crate xmodem;
-#[macro_use] extern crate structopt_derive;
+#[macro_use]
+extern crate structopt_derive;
 
 use std::path::PathBuf;
 use std::time::Duration;
@@ -59,6 +60,7 @@ fn main() {
     settings.set_char_size(opt.char_width);
     settings.set_stop_bits(opt.stop_bits);
     settings.set_flow_control(opt.flow_control);
+    settings.set_baud_rate(opt.baud_rate).expect("invalid baud rate");
     serial.write_settings(&settings).expect("invalid settings");
     serial.set_timeout(Duration::from_secs(opt.timeout)).expect("invalid timeout");
 
@@ -66,8 +68,8 @@ fn main() {
         Some(ref path) => {
             let file = File::open(path).expect("file not exist!");
             Box::new(BufReader::new(file))
-        },
-        None => Box::new(io::stdin()),
+        }
+        None => Box::new(BufReader::new(io::stdin())),
     };
 
     if opt.raw {

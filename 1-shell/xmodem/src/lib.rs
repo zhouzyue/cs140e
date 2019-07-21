@@ -177,7 +177,7 @@ impl<T: io::Read + io::Write> Xmodem<T> {
         if r == byte {
             Ok(byte)
         } else {
-            self.inner.write(&[CAN])?;
+            self.write_byte(CAN)?;
             if r == CAN {
                 Err(io::Error::new(io::ErrorKind::ConnectionAborted, ""))
             } else {
@@ -239,8 +239,8 @@ impl<T: io::Read + io::Write> Xmodem<T> {
         }
 
         if !self.started {
-            self.started = true;
             self.write_byte(NAK)?;
+            self.started = true;
             (self.progress)(Progress::Started);
         }
 
@@ -251,7 +251,7 @@ impl<T: io::Read + io::Write> Xmodem<T> {
                 self.expect_byte_or_cancel(EOT, "EOT")?;
                 self.write_byte(ACK)?;
                 Ok(0)
-            },
+            }
             SOH => {
                 self.expect_byte(self.packet, "packet number")?;
                 self.expect_byte(255 - self.packet, "255-packet number")?;
@@ -309,6 +309,7 @@ impl<T: io::Read + io::Write> Xmodem<T> {
     pub fn write_packet(&mut self, buf: &[u8]) -> io::Result<usize> {
         if !self.started {
             (self.progress)(Progress::Waiting);
+//            let byte = self.read_byte(false).unwrap();
             self.expect_byte(NAK, "expect NAK to start send")?;
             (self.progress)(Progress::Started);
             self.started = true;

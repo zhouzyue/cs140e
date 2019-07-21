@@ -5,8 +5,8 @@ extern crate pi;
 extern crate core;
 
 use std::io;
-use core::fmt::Write;
 use std::io::Cursor;
+use core::fmt::Write;
 
 pub mod lang_items;
 
@@ -24,26 +24,28 @@ const MAX_BINARY_SIZE: usize = BOOTLOADER_START_ADDR - BINARY_START_ADDR;
 fn jump_to(addr: *mut u8) -> ! {
     unsafe {
         asm!("br $0" : : "r"(addr as usize));
-        loop { asm!("nop" :::: "volatile")  }
+        loop { asm!("nop" :::: "volatile") }
     }
 }
 
 #[no_mangle]
 pub extern "C" fn kmain() {
-    // FIXME: Implement the bootloader.
     let mut uart = pi::uart::MiniUart::new();
     uart.set_read_timeout(750);
 
+    use pi::timer;
     loop {
         let address = unsafe { std::slice::from_raw_parts_mut(BINARY_START, MAX_BINARY_SIZE) };
-        let r = xmodem::Xmodem::receive(&mut uart, Cursor::new(address));
-        match r {
+        match xmodem::Xmodem::receive(&mut uart, Cursor::new(address)) {
             Ok(_) => {
                 jump_to(BINARY_START);
             },
             Err(err) => match err.kind() {
                 io::ErrorKind::TimedOut => continue,
-                _ => uart.write_str("err").unwrap()
+                e => {
+                    uart.write_fmt(format_args!("err {}\r\n", "!")).unwrap();
+                    continue
+                }
             }
         }
     }

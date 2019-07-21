@@ -16,7 +16,7 @@ extern crate stack_vec;
 
 use pi::uart::MiniUart;
 use core::fmt::Write;
-use console::kprint;
+use console::{kprint, CONSOLE};
 
 pub mod lang_items;
 pub mod mutex;
@@ -27,7 +27,10 @@ pub mod shell;
 pub extern "C" fn kmain() {
     // FIXME: Start the shell.
 //     shell::shell("> ")
+//    loop {
+//        kprint!("{}", "test");
+//    }
     loop {
-        kprint!("{}", "test");
+        CONSOLE.lock().write_str("{}", 1);
     }
 }
