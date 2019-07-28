@@ -1,5 +1,5 @@
 use std::ffi::OsStr;
-use std::char::decode_utf16;
+use core::char::decode_utf16;
 use std::borrow::Cow;
 use std::io;
 

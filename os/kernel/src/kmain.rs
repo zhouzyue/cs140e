@@ -6,14 +6,20 @@
 #![feature(decl_macro)]
 #![feature(repr_align)]
 #![feature(attr_literals)]
-#![feature(never_type)]
-#![feature(ptr_internals)]
+#![feature(exclusive_range_pattern)]
+#![feature(alloc, allocator_api, global_allocator)]
+#![feature(alloc_error_handler)]
 
+#[macro_use]
+#[allow(unused_imports)]
+extern crate alloc;
 #[macro_use]
 extern crate core;
 extern crate pi;
 extern crate stack_vec;
+extern crate fat32;
 
+pub mod allocator;
 use pi::uart::MiniUart;
 use core::fmt::Write;
 use console::{kprint, CONSOLE};
@@ -22,15 +28,24 @@ pub mod lang_items;
 pub mod mutex;
 pub mod console;
 pub mod shell;
+pub mod fs;
+
+#[cfg(not(test))]
+use allocator::Allocator;
+use fs::FileSystem;
+
+#[cfg(not(test))]
+#[global_allocator]
+pub static ALLOCATOR: Allocator = Allocator::uninitialized();
+
+pub static FILE_SYSTEM: FileSystem = FileSystem::uninitialized();
 
 #[no_mangle]
+#[cfg(not(test))]
 pub extern "C" fn kmain() {
-    // FIXME: Start the shell.
-//     shell::shell("> ")
-//    loop {
-//        kprint!("{}", "test");
-//    }
+    use console::kprint;
     loop {
-        CONSOLE.lock().write_str("{}", 1);
+        kprint!("1");
     }
+    // ALLOCATOR.initialize();
 }

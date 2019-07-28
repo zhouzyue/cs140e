@@ -4,3 +4,5 @@ version = "0.1.0"
 authors = ["Sergio Benitez <sb@sergio.bz>"]
 
 [dependencies]
+hashbrown = { version = "0.4.0", features = ['rustc-dep-of-std'] }
+#libc = { version = "0.2.60", default-features = false, features = ['rustc-dep-of-std'] }

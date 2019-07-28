@@ -17,12 +17,13 @@
   "no-compiler-rt": true,
   "features": "+a53,+strict-align",
   "max-atomic-width": 128,
-  "os": "none",
   "panic": "abort",
   "panic-strategy": "abort",
   "position-independent-executables": true,
   "target-c-int-width": "32",
   "target-endian": "little",
+  "target-family": "unix",
+  "os": "ros",
   "target-pointer-width": "64",
   "disable-redzone": true
 }
