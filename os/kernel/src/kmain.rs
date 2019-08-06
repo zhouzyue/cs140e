@@ -9,6 +9,7 @@
 #![feature(exclusive_range_pattern)]
 #![feature(alloc, allocator_api, global_allocator)]
 #![feature(alloc_error_handler)]
+#![feature(panic_info_message)]
 
 #[macro_use]
 #[allow(unused_imports)]
@@ -21,7 +22,6 @@ extern crate fat32;
 
 pub mod allocator;
 use pi::uart::MiniUart;
-use core::fmt::Write;
 use console::{kprint, CONSOLE};
 
 pub mod lang_items;
@@ -43,9 +43,9 @@ pub static FILE_SYSTEM: FileSystem = FileSystem::uninitialized();
 #[no_mangle]
 #[cfg(not(test))]
 pub extern "C" fn kmain() {
-    use console::kprint;
-    loop {
-        kprint!("1");
-    }
-    // ALLOCATOR.initialize();
+//    use console::kprint;
+//    loop {
+//        kprint!("1");
+//    }
+    ALLOCATOR.initialize();
 }
