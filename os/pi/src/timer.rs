@@ -1,6 +1,7 @@
 use common::IO_BASE;
-use volatile::prelude::*;
-use volatile::{Volatile, ReadVolatile};
+// use volatile::prelude::*;
+use volatile::{ReadVolatile, Volatile};
+use volatile::{Readable,Writeable,ReadableWriteable,Wrapper};
 
 /// The base address for the ARM system timer registers.
 const TIMER_REG_BASE: usize = IO_BASE + 0x3000;
@@ -16,7 +17,7 @@ struct Registers {
 
 /// The Raspberry Pi ARM system timer.
 pub struct Timer {
-    registers: &'static mut Registers
+    registers: &'static mut Registers,
 }
 
 impl Timer {

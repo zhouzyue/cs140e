@@ -43,9 +43,8 @@ pub static FILE_SYSTEM: FileSystem = FileSystem::uninitialized();
 #[no_mangle]
 #[cfg(not(test))]
 pub extern "C" fn kmain() {
-//    use console::kprint;
-//    loop {
-//        kprint!("1");
-//    }
-    ALLOCATOR.initialize();
+    loop {
+        kprint!("1");
+    }
+    // ALLOCATOR.initialize();
 }

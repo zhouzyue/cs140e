@@ -94,6 +94,8 @@ extern "C" {
     static _end: u8;
 }
 
+use pi::atags::Atags;
+
 /// Returns the (start address, end address) of the available memory on this
 /// system if it can be determined. If it cannot, `None` is returned.
 ///
@@ -101,5 +103,11 @@ extern "C" {
 fn memory_map() -> Option<(usize, usize)> {
     let binary_end = unsafe { (&_end as *const u8) as u32 };
 
-    unimplemented!("memory map fetch")
+    let mut atags = Atags::get();
+    while let Some(atag) = atags.next() {
+        if let Some(mem) = atag.mem() {
+            return Some((binary_end as usize, (mem.start + mem.size) as usize));
+        }
+    }
+    None
 }

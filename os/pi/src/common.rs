@@ -1,5 +1,6 @@
 /// The address where I/O peripherals are mapped to.
 pub const IO_BASE: usize = 0x3F000000;
+use volatile::prelude::*;
 
 /// Generates `pub enums` with no variants for each `ident` passed in.
 pub macro states($($name:ident),*) {

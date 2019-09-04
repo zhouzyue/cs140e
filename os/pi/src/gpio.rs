@@ -1,8 +1,8 @@
 use core::marker::PhantomData;
 
-use common::{IO_BASE, states};
+use common::{states, IO_BASE};
 use volatile::prelude::*;
-use volatile::{Volatile, WriteVolatile, ReadVolatile, Reserved};
+use volatile::{ReadVolatile, Reserved, Volatile, WriteVolatile};
 
 /// An alternative GPIO function.
 #[repr(u8)]
@@ -46,7 +46,7 @@ struct Registers {
     PUDCLK: [Volatile<u32>; 2],
 }
 
-/// Possible states for a GPIO pin.
+// / Possible states for a GPIO pin.
 states! {
     Uninitialized, Input, Output, Alt
 }
@@ -102,7 +102,8 @@ impl Gpio<Uninitialized> {
     /// Enables the alternative function `function` for `self`. Consumes self
     /// and returns a `Gpio` structure in the `Alt` state.
     pub fn into_alt(self, function: Function) -> Gpio<Alt> {
-        self.registers.FSEL[(self.pin / 10) as usize].or_mask((function as u32) << (3 * (self.pin as u32 % 10)));
+        self.registers.FSEL[(self.pin / 10) as usize]
+            .or_mask((function as u32) << (3 * (self.pin as u32 % 10)));
         self.transition()
     }
 

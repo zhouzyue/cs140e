@@ -1,12 +1,11 @@
 use core::fmt;
-use core::fmt::Error;
 
 use volatile::prelude::*;
-use volatile::{Volatile, ReadVolatile, Reserved};
+use volatile::{ReadVolatile, Reserved, Volatile};
 
-use timer;
 use common::IO_BASE;
-use gpio::{Gpio, Function};
+use gpio::{Function, Gpio};
+use timer;
 use timer::current_time;
 
 /// The base address for the `MU` registers.
@@ -90,7 +89,11 @@ impl MiniUart {
     /// Write the byte `byte`. This method blocks until there is space available
     /// in the output FIFO.
     pub fn write_byte(&mut self, byte: u8) {
-        while !self.registers.LSR_REG.has_mask(LsrStatus::TxAvailable as u8) {}
+        while !self
+            .registers
+            .LSR_REG
+            .has_mask(LsrStatus::TxAvailable as u8)
+        {}
         self.registers.IO_REG.write(byte);
     }
 
@@ -119,7 +122,7 @@ impl MiniUart {
                     }
                 }
                 Ok(())
-            },
+            }
             None => {
                 while !self.has_byte() {}
                 Ok(())
@@ -137,7 +140,7 @@ impl MiniUart {
 // FIXME: Implement `fmt::Write` for `MiniUart`. A b'\r' byte should be written
 // before writing any b'\n' byte.
 impl fmt::Write for MiniUart {
-    fn write_str(&mut self, s: &str) -> Result<(), Error> {
+    fn write_str(&mut self, s: &str) -> Result<(), core::fmt::Error> {
         for byte in s.bytes() {
             if byte == b'\n' {
                 self.write_byte(b'\r');
@@ -150,8 +153,8 @@ impl fmt::Write for MiniUart {
 
 #[cfg(feature = "std")]
 mod uart_io {
-    use std::io;
     use super::MiniUart;
+    use std::io;
 
     // FIXME: Implement `io::Read` and `io::Write` for `MiniUart`.
     //
