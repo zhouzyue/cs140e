@@ -10,6 +10,8 @@
 #![feature(alloc, allocator_api, global_allocator)]
 #![feature(alloc_error_handler)]
 #![feature(panic_info_message)]
+#![feature(raw_vec_internals)]
+#![feature(try_reserve)]
 
 #[macro_use]
 #[allow(unused_imports)]
@@ -48,3 +50,4 @@ pub extern "C" fn kmain() {
     }
     // ALLOCATOR.initialize();
 }
+

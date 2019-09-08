@@ -1,13 +1,12 @@
-use traits::*;
-
 #[doc(hidden)]
+use core::fmt;
+
+use traits::*;
 pub(crate) macro ptr($type:ident, |$self:ident| $f:expr) {
-    impl<T> Wrapper for $type<T> {
-        type Inner = T;
+impl<T> Wrapper for $type<T> {
+    type Inner = T;
         #[inline(always)] fn ptr(&$self) -> *const T { $f }
     }
-
-    use core::fmt;
 
     impl<T> fmt::Debug for $type<T> {
         fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

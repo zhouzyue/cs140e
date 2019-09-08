@@ -59,10 +59,17 @@ mod allocator {
     #[allow(dead_code)] mod bump;
     #[allow(dead_code)] mod bin;
 
-    use alloc::allocator::{AllocErr, Layout};
+    use alloc::alloc::{AllocErr, Layout};
     use alloc::raw_vec::RawVec;
 
-    macro test_allocators {
+    macro_rules! test_allocators {
+        ($bin:ident, $bump:ident, $mem:expr, |$info:pat| $block:expr) => (
+            test_alloc!(@bin, $bin, $mem, |$info| $block);
+            test_alloc!(@bump, $bump, $mem, |$info| $block);
+        )
+    }
+
+    macro_rules! test_alloc {
         (@$kind:ident, $name:ident, $mem:expr, |$info:pat| $block:expr) => {
             #[test]
             fn $name() {
@@ -74,12 +81,7 @@ mod allocator {
                 let $info = (start, end, allocator);
                 $block
             }
-        },
-
-        ($bin:ident, $bump:ident, $mem:expr, |$info:pat| $block:expr) => (
-            test_allocators!(@bin, $bin, $mem, |$info| $block);
-            test_allocators!(@bump, $bump, $mem, |$info| $block);
-        )
+        }
     }
 
     macro layout($size:expr, $align:expr) {
@@ -119,7 +121,7 @@ mod allocator {
 
     test_allocators!(bin_exhausted, bump_exhausted, 128, |(_, _, mut a)| {
         let e = a.alloc(layout!(1024, 128)).unwrap_err();
-        assert_eq!(e, AllocErr::Exhausted { request: layout!(1024, 128) })
+        assert_eq!(e, AllocErr)
     });
 
     test_allocators!(bin_alloc, bump_alloc, 8 * (1 << 20), |(start, end, a)| {
@@ -183,7 +185,7 @@ mod allocator {
         }
     });
 
-    test_allocators!(@bin, bin_dealloc_1, 65536, |(_, _, mut a)| {
+    test_alloc!(@bin, bin_dealloc_1, 65536, |(_, _, mut a)| {
         let layouts = [
             layout!(16, 16),
             layout!(16, 256),
@@ -221,7 +223,7 @@ mod allocator {
         }
     });
 
-    test_allocators!(@bin, bin_dealloc_2, 8192, |(_, _, mut a)| {
+    test_alloc!(@bin, bin_dealloc_2, 8192, |(_, _, mut a)| {
         let layouts = [
             layout!(3072, 16),
             layout!(512, 32),

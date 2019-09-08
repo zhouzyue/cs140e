@@ -2,7 +2,8 @@ use core::panic::PanicInfo;
 use console::kprintln;
 use pi::timer::spin_sleep_ms;
 
-#[panic_handler] #[no_mangle] pub extern fn panic(_info: &PanicInfo) -> ! {
+//#[panic_handler]
+//#[no_mangle] pub extern fn panic(_info: &PanicInfo) -> ! {
 //    spin_sleep_ms(3000);
 //    let r = r#"
 //                (
@@ -27,13 +28,13 @@ use pi::timer::spin_sleep_ms;
 //    if let Some(message) = _info.message() {
 //         kprintln!("{:?}", message);
 //    }
-    loop { unsafe { asm!("wfe") } }
-}
+//    loop { unsafe { asm!("wfe") } }
+//}
 
 use core::alloc::Layout;
 
-#[alloc_error_handler]
-pub fn rust_oom(layout: Layout) -> ! {
+//#[alloc_error_handler]
+//pub fn rust_oom(layout: Layout) -> ! {
 //    let hook = HOOK.load(Ordering::SeqCst);
 //    let hook: fn(Layout) = if hook.is_null() {
 //        default_alloc_error_hook
@@ -42,8 +43,8 @@ pub fn rust_oom(layout: Layout) -> ! {
 //    };
 //    hook(layout);
 //    unsafe { crate::sys::abort_internal(); }
-    loop {unsafe { asm!("wfe")}}
-}
+//    loop {unsafe { asm!("wfe")}}
+//}
 
 //#[cfg(not(test))] #[lang = "eh_personality"] pub extern fn eh_personality() {}
 
