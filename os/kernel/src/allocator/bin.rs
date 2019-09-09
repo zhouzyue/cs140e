@@ -1,12 +1,9 @@
 use alloc::alloc::{AllocErr, Layout};
-use alloc::collections::TryReserveError::AllocError;
-use alloc::raw_vec::RawVec;
-use core::fmt::{Debug, Error, Formatter};
+use core::fmt::{Error, Formatter};
 use std::cmp::{max, min};
-use std::intrinsics::size_of;
+use std::mem::size_of;
 
 use allocator::linked_list::LinkedList;
-use allocator::util::*;
 
 /// A simple allocator that allocates based on size classes.
 pub struct Allocator {
@@ -14,10 +11,13 @@ pub struct Allocator {
     allocated: usize,
     length: usize,
     total: usize
-//    start: usize
 }
 
-const BIN_SIZE: usize = 8;
+const BIN_SIZE: usize = size_of::<usize>();
+
+pub fn prev_power_of_two(num: usize) -> usize {
+    1 << (8 * (size_of::<usize>()) - num.leading_zeros() as usize - 1)
+}
 
 impl Allocator {
     /// Creates a new bin allocator that will allocate memory from the region
@@ -26,16 +26,15 @@ impl Allocator {
         let mut list = [LinkedList::new(); 32];
         let mut cur = start;
         let mut total = 0;
-        unsafe {
-            let mut i = 0;
-            while cur + BIN_SIZE  <= end {
-                total += BIN_SIZE << i;
-                cur = align_up(cur, BIN_SIZE << i);
-                list[i].push(cur as *mut usize);
-//                cur = align_up(cur + (BIN_SIZE << i), BIN_SIZE << i);
-                cur += BIN_SIZE << i;
-                i = i + 1;
+        while cur + BIN_SIZE <= end {
+            let max_allocable = prev_power_of_two(end - cur);
+            let cur_aligned = cur & (!cur + 1);
+            let size = min(cur_aligned, max_allocable);
+            total += size;
+            unsafe {
+                list[(size / BIN_SIZE).trailing_zeros() as usize].push(cur as *mut usize);
             }
+            cur += size;
         }
         Allocator {
             list,
@@ -71,7 +70,6 @@ impl Allocator {
 
         let bin = (size / BIN_SIZE).trailing_zeros() as usize;
 
-        println!("size {}, bin {}, align {}, alloc {:?}", size, bin, align, self);
         for i in bin..self.list.len() {
             if self.list[i].peek().is_some() {
                 for j in (bin + 1..i + 1).rev() {
@@ -85,7 +83,6 @@ impl Allocator {
                 self.allocated += size;
 
                 let result = self.list[bin].pop().expect("this bin should have space now");
-//                print!("after alloc {:?}", self);
                 return Ok(result as *mut u8);
             }
         }
@@ -106,7 +103,6 @@ impl Allocator {
     /// Parameters not meeting these conditions may result in undefined
     /// behavior.
     pub fn dealloc(&mut self, ptr: *mut u8, layout: Layout) {
-//        println!("dealloc");
         let align = max(layout.align(), BIN_SIZE);
         let size = max(layout.size().next_power_of_two(), align);
 
@@ -114,14 +110,12 @@ impl Allocator {
 
         unsafe {
             self.list[bin].push(ptr as *mut usize);
-//            println!("push");
 
             let next_bin_start = BIN_SIZE << (bin + 1);
             let n = next_bin_start >> 2;
             let pair = ptr as usize ^ n;
 
             let mut exists = false;
-//            println!("loop");
             for node in self.list[bin].iter_mut() {
                 if node.value() as usize == pair {
                     node.pop();
@@ -129,32 +123,16 @@ impl Allocator {
                     break;
                 }
             }
-//            println!("loop end, exists: {}", exists);
 
             if exists {
                 self.list[bin].pop();
                 self.list[bin + 1].push(min(ptr as usize, pair) as *mut usize);
-//                println!("inner loop");
             }
         }
 
         self.allocated -= size;
     }
 }
-
-#[test]
-fn test_a() {
-    let mem: RawVec<u8> = RawVec::with_capacity(128);
-    let start = mem.ptr() as usize;
-
-    let mut alloc = Allocator::new(start, 128 + start);
-    alloc.alloc(Layout::from_size_align(8, 8).unwrap());
-    alloc.alloc(Layout::from_size_align(8, 8).unwrap());
-    print!("{:?}", alloc);
-    assert_eq!(1, 1)
-}
-//
-// FIXME: Implement `Debug` for `Allocator`.
 
 impl core::fmt::Debug for Allocator {
     fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
