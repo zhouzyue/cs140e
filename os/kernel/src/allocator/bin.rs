@@ -1,3 +1,6 @@
+use std::fmt;
+
+use allocator::util::*;
 use alloc::alloc::{AllocErr, Layout};
 use core::fmt::{Error, Formatter};
 use std::cmp::{max, min};

@@ -4,14 +4,16 @@
 #![feature(asm)]
 #![feature(optin_builtin_traits)]
 #![feature(decl_macro)]
-#![feature(repr_align)]
-#![feature(attr_literals)]
 #![feature(exclusive_range_pattern)]
-#![feature(alloc, allocator_api, global_allocator)]
+#![feature(never_type)]
+//#![feature(unique)]
+#![feature(naked_functions)]
+#![feature(allocator_api, global_allocator)]
 #![feature(alloc_error_handler)]
 #![feature(panic_info_message)]
 #![feature(raw_vec_internals)]
 #![feature(try_reserve)]
+#![feature(ptr_internals)]
 
 #[macro_use]
 #[allow(unused_imports)]
@@ -31,16 +33,23 @@ pub mod mutex;
 pub mod console;
 pub mod shell;
 pub mod fs;
+pub mod traps;
+pub mod aarch64;
+pub mod process;
+pub mod vm;
 
 #[cfg(not(test))]
 use allocator::Allocator;
 use fs::FileSystem;
+use process::GlobalScheduler;
 
 #[cfg(not(test))]
 #[global_allocator]
 pub static ALLOCATOR: Allocator = Allocator::uninitialized();
 
 pub static FILE_SYSTEM: FileSystem = FileSystem::uninitialized();
+
+pub static SCHEDULER: GlobalScheduler = GlobalScheduler::uninitialized();
 
 #[no_mangle]
 #[cfg(not(test))]
