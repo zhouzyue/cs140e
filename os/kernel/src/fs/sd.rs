@@ -1,5 +1,9 @@
+use std::intrinsics::type_id;
 use std::io;
+
 use fat32::traits::BlockDevice;
+use fat32::vfat::Timestamp;
+use pi::timer;
 
 extern "C" {
     /// A global representing the last SD controller error that occured.
@@ -27,10 +31,17 @@ extern "C" {
 
 // FIXME: Define a `#[no_mangle]` `wait_micros` function for use by `libsd`.
 // The `wait_micros` C signature is: `void wait_micros(unsigned int);`
+#[no_mangle]
+pub fn wait_micros(ms: u32) {
+    timer::spin_sleep_ms(ms as u64)
+}
 
 #[derive(Debug)]
 pub enum Error {
     // FIXME: Fill me in.
+    Timeout,
+    SendingCommandErr,
+    Unknown
 }
 
 /// A handle to an SD card controller.
@@ -40,7 +51,12 @@ pub struct Sd;
 impl Sd {
     /// Initializes the SD card controller and returns a handle to it.
     pub fn new() -> Result<Sd, Error> {
-        unimplemented!("Sd::new()")
+        let i = unsafe { sd_init() };
+        match i {
+            -1 => Err(Error::Timeout),
+            -2 => Err(Error::SendingCommandErr),
+            _ => Ok(Sd)
+        }
     }
 }
 
@@ -58,7 +74,17 @@ impl BlockDevice for Sd {
     ///
     /// An error of kind `Other` is returned for all other errors.
     fn read_sector(&mut self, n: u64, buf: &mut [u8]) -> io::Result<usize> {
-        unimplemented!("Sd::read_sector()")
+        if buf.len() < 512 || n > 2 ^ 31 - 1 {
+            return Err(io::Error::new(io::ErrorKind::InvalidInput, ""));
+        }
+        let bytes_read = unsafe { sd_readsector(n as i32, buf.as_mut_ptr()) };
+        if bytes_read == 0 {
+            return match unsafe { sd_err } {
+                -1 => Err(io::Error::new(io::ErrorKind::TimedOut, "")),
+                _ => Err(io::Error::new(io::ErrorKind::Other, "")),
+            }
+        }
+        Ok(bytes_read as usize)
     }
 
     fn write_sector(&mut self, _n: u64, _buf: &[u8]) -> io::Result<usize> {

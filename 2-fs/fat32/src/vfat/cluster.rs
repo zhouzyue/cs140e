@@ -10,3 +10,16 @@ impl From<u32> for Cluster {
 }
 
 // TODO: Implement any useful helper methods on `Cluster`.
+impl Cluster {
+    pub fn is_valid(&self) -> bool {
+        self.0 >= 2
+    }
+
+    pub fn id(&self) -> u32 {
+        self.0
+    }
+
+    pub fn index(&self) -> u32 {
+        self.0 - 2
+    }
+}
