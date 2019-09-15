@@ -132,7 +132,7 @@ impl Iterator for EntryIterator {
 
     fn next(&mut self) -> Option<Self::Item> {
         let mut raw_long_file_name = [0u16; 260];
-        for i in self.curr_idx..self.data.len() {
+        for _i in self.curr_idx..self.data.len() {
             let entry = self.data.get(self.curr_idx).unwrap();
 
             let unknown = unsafe { entry.unknown };

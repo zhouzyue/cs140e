@@ -80,7 +80,7 @@ enum Repr {
     Custom(Box<Custom>),
 }
 
-#[derive(Debug)]
+//#[derive(Debug)]
 struct Custom {
     kind: ErrorKind,
     error: Box<dyn error::Error+Send+Sync>,
@@ -94,7 +94,8 @@ struct Custom {
 /// It is used with the [`io::Error`] type.
 ///
 /// [`io::Error`]: struct.Error.html
-#[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+//#[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[derive(Clone, Copy, Eq, Ord, PartialEq, PartialOrd)]
 #[stable(feature = "rust1", since = "1.0.0")]
 #[allow(deprecated)]
 pub enum ErrorKind {
@@ -520,10 +521,12 @@ impl fmt::Debug for Repr {
             Repr::Os(code) =>
                 fmt.debug_struct("Os")
                     .field("code", &code)
-                    .field("kind", &sys::decode_error_kind(code))
+//                    .field("kind", &sys::decode_error_kind(code))
                     .field("message", &sys::os::error_string(code)).finish(),
-            Repr::Custom(ref c) => fmt::Debug::fmt(&c, fmt),
-            Repr::Simple(kind) => fmt.debug_tuple("Kind").field(&kind).finish(),
+//            Repr::Custom(ref c) => fmt::Debug::fmt(&c, fmt),
+            Repr::Custom(ref c) => fmt.debug_struct("custom").finish(),
+//            Repr::Simple(kind) => fmt.debug_tuple("Kind").field(&kind).finish(),
+            Repr::Simple(kind) => fmt.debug_tuple("Kind").finish(),
         }
     }
 }

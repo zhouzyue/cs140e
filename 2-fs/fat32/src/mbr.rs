@@ -1,4 +1,3 @@
-use Error::{BadSignature, Io};
 use std::{fmt, io};
 use traits::BlockDevice;
 

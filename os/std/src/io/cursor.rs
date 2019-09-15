@@ -13,6 +13,7 @@ use io::prelude::*;
 use core::convert::TryInto;
 use cmp;
 use io::{self, Initializer, SeekFrom, Error, ErrorKind};
+use core::fmt::Debug;
 
 /// A `Cursor` wraps another type and provides it with a
 /// [`Seek`] implementation.

@@ -1,4 +1,5 @@
-use std::collections::VecDeque;
+//use std::collections::VecDeque;
+use alloc::collections::VecDeque;
 
 use mutex::Mutex;
 use process::{Process, State, Id};

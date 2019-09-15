@@ -467,14 +467,6 @@ pub use alloc::collections::{binary_heap, btree_map, btree_set};
 #[stable(feature = "rust1", since = "1.0.0")]
 pub use alloc::collections::{linked_list, vec_deque};
 
-#[stable(feature = "rust1", since = "1.0.0")]
-pub use self::hash_map::HashMap;
-#[stable(feature = "rust1", since = "1.0.0")]
-pub use self::hash_set::HashSet;
-
-#[unstable(feature = "try_reserve", reason = "new API", issue="48043")]
-pub use alloc::collections::CollectionAllocErr;
-
 mod hash;
 
 #[stable(feature = "rust1", since = "1.0.0")]
@@ -482,11 +474,4 @@ pub mod hash_map {
     //! A hash map implemented with linear probing and Robin Hood bucket stealing.
     #[stable(feature = "rust1", since = "1.0.0")]
     pub use super::hash::map::*;
-}
-
-#[stable(feature = "rust1", since = "1.0.0")]
-pub mod hash_set {
-    //! A hash set implemented as a `HashMap` where the value is `()`.
-    #[stable(feature = "rust1", since = "1.0.0")]
-    pub use super::hash::set::*;
 }

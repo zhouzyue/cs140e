@@ -10,9 +10,7 @@
 
 //! Unordered containers, implemented as hash-tables
 
-mod bench;
 pub mod map;
-pub mod set;
 
 trait Recover<Q: ?Sized> {
     type Key;

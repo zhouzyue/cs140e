@@ -1,5 +1,7 @@
+extern crate hashbrown;
+
 use std::{fmt, io};
-use std::collections::HashMap;
+use self::hashbrown::HashMap;
 use traits::BlockDevice;
 use std::io::Write;
 
@@ -76,7 +78,7 @@ impl CachedDevice {
             let mut data = Vec::new();
 
             for i in 0..factor {
-                self.device.read_all_sector(physical_sector + i, &mut data);
+                self.device.read_all_sector(physical_sector + i, &mut data).unwrap();
             }
 
             self.cache.insert(sector, CacheEntry { data, dirty: false });

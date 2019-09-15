@@ -13,7 +13,6 @@
 use io::prelude::*;
 
 use cmp;
-use error;
 use fmt;
 use io::{self, Initializer, DEFAULT_BUF_SIZE, Error, ErrorKind, SeekFrom};
 use memchr;
@@ -408,7 +407,7 @@ pub struct BufWriter<W: Write> {
 ///     }
 /// };
 /// ```
-#[derive(Debug)]
+//#[derive(Debug)]
 #[stable(feature = "rust1", since = "1.0.0")]
 pub struct IntoInnerError<W>(W, Error);
 
@@ -660,12 +659,6 @@ impl<W> From<IntoInnerError<W>> for Error {
     fn from(iie: IntoInnerError<W>) -> Error { iie.1 }
 }
 
-#[stable(feature = "rust1", since = "1.0.0")]
-impl<W: Send + fmt::Debug> error::Error for IntoInnerError<W> {
-    fn description(&self) -> &str {
-        error::Error::description(self.error())
-    }
-}
 
 #[stable(feature = "rust1", since = "1.0.0")]
 impl<W> fmt::Display for IntoInnerError<W> {

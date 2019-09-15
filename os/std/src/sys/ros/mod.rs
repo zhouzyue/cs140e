@@ -36,7 +36,8 @@ pub mod os_str {
     use sys_common::bytestring::debug_fmt_bytestring;
     use core::str::lossy::Utf8Lossy;
 
-    #[derive(Clone, Hash)]
+//    #[derive(Clone, Hash)]
+    #[derive(Clone)]
     pub struct Buf {
         pub inner: Vec<u8>
     }

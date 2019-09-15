@@ -1,8 +1,8 @@
-use std::cmp::{max, min};
+use std::cmp::min;
 use std::io::{self, SeekFrom};
 
 use traits;
-use vfat::{Cluster, FatEntry, Metadata, Shared, Status, VFat};
+use vfat::{Cluster, FatEntry, Metadata, Shared, VFat};
 
 #[derive(Debug)]
 pub struct File {
@@ -67,7 +67,7 @@ impl io::Read for File {
 }
 
 impl io::Write for File {
-    fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
+    fn write(&mut self, _buf: &[u8]) -> io::Result<usize> {
         unimplemented!()
     }
 
@@ -105,7 +105,7 @@ impl io::Seek for File {
             let bytes_per_cluster = fs.bytes_per_sector as u32 * fs.sectors_per_cluster as u32;
             let cluster = self.offset / bytes_per_cluster;
             self.curr_cluster = Some(self.start_cluster);
-            for i in 0..cluster {
+            for _i in 0..cluster {
                 self.curr_cluster = fs.fat_entry(self.curr_cluster.unwrap())?.next_cluster();
             }
             Ok(self.offset as u64)

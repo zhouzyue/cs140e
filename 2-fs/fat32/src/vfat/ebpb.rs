@@ -1,7 +1,6 @@
 use std::{fmt, io};
 use traits::BlockDevice;
 use vfat::Error;
-use std::panic::resume_unwind;
 
 #[repr(C, packed)]
 pub struct BiosParameterBlock {
