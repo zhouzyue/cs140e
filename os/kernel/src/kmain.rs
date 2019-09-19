@@ -6,7 +6,6 @@
 #![feature(decl_macro)]
 #![feature(exclusive_range_pattern)]
 #![feature(never_type)]
-//#![feature(unique)]
 #![feature(naked_functions)]
 #![feature(allocator_api, global_allocator)]
 #![feature(alloc_error_handler)]
@@ -54,8 +53,10 @@ pub static SCHEDULER: GlobalScheduler = GlobalScheduler::uninitialized();
 #[no_mangle]
 #[cfg(not(test))]
 pub extern "C" fn kmain() {
+    let mut uart = MiniUart::new();
     loop {
-        kprint!("1");
+//        kprint!("1");
+        uart.write_byte(0x42);
     }
     // ALLOCATOR.initialize();
 }

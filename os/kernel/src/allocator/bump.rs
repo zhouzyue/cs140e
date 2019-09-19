@@ -1,8 +1,6 @@
 use core::alloc::{AllocErr, Layout};
 
 use allocator::util::*;
-use alloc::collections::TryReserveError::AllocError;
-use std::io::ErrorKind;
 
 /// A "bump" allocator: allocates memory by bumping a pointer; never frees.
 #[derive(Debug)]

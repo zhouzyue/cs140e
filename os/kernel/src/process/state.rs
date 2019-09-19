@@ -7,7 +7,7 @@ use process::Process;
 /// execute. If the function returns `true`, the process is scheduled. If it
 /// returns `false`, the process is not scheduled, and this function will be
 /// called on the next time slice.
-pub type EventPollFn = Box<FnMut(&mut Process) -> bool + Send>;
+pub type EventPollFn = Box<dyn FnMut(&mut Process) -> bool + Send>;
 
 /// The scheduling state of a process.
 pub enum State {

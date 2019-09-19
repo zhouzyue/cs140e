@@ -448,8 +448,6 @@ pub use alloc::vec;
 #[unstable(feature = "i128", issue = "35118")]
 pub use core::u128;
 
-extern crate hashbrown;
-
 //- pub mod f32;
 //- pub mod f64;
 
