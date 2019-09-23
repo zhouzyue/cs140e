@@ -7,7 +7,7 @@
 #![feature(exclusive_range_pattern)]
 #![feature(never_type)]
 #![feature(naked_functions)]
-#![feature(allocator_api, global_allocator)]
+#![feature(allocator_api)]
 #![feature(alloc_error_handler)]
 #![feature(panic_info_message)]
 #![feature(raw_vec_internals)]
@@ -24,8 +24,6 @@ extern crate stack_vec;
 extern crate fat32;
 
 pub mod allocator;
-use pi::uart::MiniUart;
-use console::{kprint, CONSOLE};
 
 pub mod lang_items;
 pub mod mutex;
@@ -53,11 +51,8 @@ pub static SCHEDULER: GlobalScheduler = GlobalScheduler::uninitialized();
 #[no_mangle]
 #[cfg(not(test))]
 pub extern "C" fn kmain() {
-    let mut uart = MiniUart::new();
-    loop {
-//        kprint!("1");
-        uart.write_byte(0x42);
-    }
-    // ALLOCATOR.initialize();
+    ALLOCATOR.initialize();
+    FILE_SYSTEM.initialize();
+    shell::shell("> ");
 }
 

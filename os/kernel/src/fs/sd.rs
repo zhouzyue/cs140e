@@ -41,7 +41,7 @@ pub enum Error {
     // FIXME: Fill me in.
     Timeout,
     SendingCommandErr,
-    Unknown
+    Unknown,
 }
 
 /// A handle to an SD card controller.
@@ -74,15 +74,15 @@ impl BlockDevice for Sd {
     ///
     /// An error of kind `Other` is returned for all other errors.
     fn read_sector(&mut self, n: u64, buf: &mut [u8]) -> io::Result<usize> {
-        if buf.len() < 512 || n > 2 ^ 31 - 1 {
+        if buf.len() < 512 || n > 0xFFFFFFFF {
             return Err(io::Error::new(io::ErrorKind::InvalidInput, ""));
         }
         let bytes_read = unsafe { sd_readsector(n as i32, buf.as_mut_ptr()) };
         if bytes_read == 0 {
             return match unsafe { sd_err } {
-                -1 => Err(io::Error::new(io::ErrorKind::TimedOut, "")),
-                _ => Err(io::Error::new(io::ErrorKind::Other, "")),
-            }
+                -1 => Err(io::Error::new(io::ErrorKind::TimedOut, "time out error")),
+                _ => Err(io::Error::new(io::ErrorKind::Other, "other error")),
+            };
         }
         Ok(bytes_read as usize)
     }

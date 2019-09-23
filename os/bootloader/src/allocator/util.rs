@@ -1,4 +1,4 @@
-use std::ops::{Div, Mul};
+use std::ops::{Add, Div, Mul};
 
 /// Align `addr` downwards to the nearest multiple of `align`.
 ///

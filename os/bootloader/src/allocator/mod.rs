@@ -8,7 +8,9 @@ mod imp;
 mod tests;
 
 use mutex::Mutex;
-use core::alloc::{Layout, GlobalAlloc};
+use core::alloc::{Alloc, AllocErr, Layout, GlobalAlloc};
+use core::ptr::NonNull;
+use std::cmp::max;
 
 /// Thread-safe (locking) wrapper around a particular memory allocator.
 #[derive(Debug)]

@@ -1,3 +1,6 @@
+use std::fmt;
+
+use allocator::util::*;
 use alloc::alloc::{AllocErr, Layout};
 use core::fmt::{Error, Formatter};
 use std::cmp::{max, min};
@@ -10,7 +13,7 @@ pub struct Allocator {
     list: [LinkedList; 32],
     allocated: usize,
     length: usize,
-    total: usize,
+    total: usize
 }
 
 const BIN_SIZE: usize = size_of::<usize>();

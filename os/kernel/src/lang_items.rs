@@ -1,34 +1,34 @@
 use core::panic::PanicInfo;
 use console::kprintln;
-use pi::timer::spin_sleep_ms;
 
 #[panic_handler]
-#[no_mangle] pub extern fn panic(_info: &PanicInfo) -> ! {
-//    spin_sleep_ms(3000);
-//    let r = r#"
-//                (
-//           (      )     )
-//             )   (    (
-//            (          `
-//        .-""^"""^""^"""^""-.
-//      (//\\//\\//\\//\\//\\//)
-//       ~\^^^^^^^^^^^^^^^^^^/~
-//         `================`
-//
-//        The pi is overdone.
-//    "#;
-//    kprintln!("{}", r);
-//    kprintln!("---------- PANIC ----------");
-//    if let Some(location) = _info.location() {
-//        kprintln!("FILE: {}", location.file());
-//        kprintln!("LINE: {}", location.line());
-//        kprintln!("COL: {}", location.column());
-//    }
-//    kprintln!("");
-//    if let Some(message) = _info.message() {
-//         kprintln!("{:?}", message);
-//    }
-    loop { unsafe { asm!("wfe") } }
+#[no_mangle]
+pub extern fn panic(_info: &PanicInfo) -> ! {
+    let r = r#"
+                (
+           (      )     )
+             )   (    (
+            (          `
+        .-""^"""^""^"""^""-.
+      (//\\//\\//\\//\\//\\//)
+       ~\^^^^^^^^^^^^^^^^^^/~
+         `================`
+
+        The pi is overdone.
+    "#;
+    kprintln!("{}", r);
+    kprintln!("---------- PANIC ----------");
+    if let Some(location) = _info.location() {
+        kprintln!("FILE: {}", location.file());
+        kprintln!("LINE: {}", location.line());
+        kprintln!("COL: {}", location.column());
+    }
+    kprintln!("");
+    if let Some(message) = _info.message() {
+         kprintln!("{:?}", message);
+    }
+
+    loop {unsafe { asm!("wfe")}}
 }
 
 use core::alloc::Layout;
