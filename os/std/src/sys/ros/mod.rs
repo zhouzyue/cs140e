@@ -27,7 +27,7 @@ pub mod os {
 
 pub mod os_str {
     use borrow::Cow;
-    use fmt;
+    use core::fmt;
     use str;
     use mem;
     use rc::Rc;

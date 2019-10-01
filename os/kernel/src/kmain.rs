@@ -48,11 +48,12 @@ pub static FILE_SYSTEM: FileSystem = FileSystem::uninitialized();
 
 pub static SCHEDULER: GlobalScheduler = GlobalScheduler::uninitialized();
 
+use console::kprint;
+
 #[no_mangle]
 #[cfg(not(test))]
 pub extern "C" fn kmain() {
     ALLOCATOR.initialize();
     FILE_SYSTEM.initialize();
-    shell::shell("> ");
+    SCHEDULER.start();
 }
-

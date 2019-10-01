@@ -55,3 +55,10 @@ pub unsafe extern fn memcmp(s1: *const u8, s2: *const u8, n: usize) -> i32 {
     }
     return 0;
 }
+
+use core::alloc::Layout;
+
+#[alloc_error_handler]
+pub fn rust_oom(layout: Layout) -> ! {
+    loop {unsafe { asm!("wfe")}}
+}

@@ -309,7 +309,6 @@ impl<T: io::Read + io::Write> Xmodem<T> {
     pub fn write_packet(&mut self, buf: &[u8]) -> io::Result<usize> {
         if !self.started {
             (self.progress)(Progress::Waiting);
-//            let byte = self.read_byte(false).unwrap();
             self.expect_byte(NAK, "expect NAK to start send")?;
             (self.progress)(Progress::Started);
             self.started = true;

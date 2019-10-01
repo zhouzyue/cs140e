@@ -13,7 +13,7 @@
 use io::prelude::*;
 
 use cmp;
-use fmt;
+use core::fmt;
 use io::{self, Initializer, DEFAULT_BUF_SIZE, Error, ErrorKind, SeekFrom};
 use memchr;
 

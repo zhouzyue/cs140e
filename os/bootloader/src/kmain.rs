@@ -1,12 +1,22 @@
 #![feature(asm, lang_items)]
+#![feature(alloc_error_handler)]
+#![feature(allocator_api)]
+#![feature(optin_builtin_traits)]
+//#![no_std]
 
 extern crate xmodem;
 extern crate pi;
+#[macro_use]
 extern crate core;
+extern crate alloc;
+
+pub mod allocator;
+pub mod mutex;
 
 use std::io;
 use std::io::Cursor;
 use core::fmt::Write;
+use allocator::Allocator;
 
 pub mod lang_items;
 
@@ -28,14 +38,16 @@ fn jump_to(addr: *mut u8) -> ! {
     }
 }
 
+#[global_allocator]
+pub static ALLOCATOR: Allocator = Allocator::uninitialized();
+
 #[no_mangle]
 pub extern "C" fn kmain() {
     let mut uart = pi::uart::MiniUart::new();
     uart.set_read_timeout(750);
 
-    use pi::timer;
     loop {
-        let address = unsafe { std::slice::from_raw_parts_mut(BINARY_START, MAX_BINARY_SIZE) };
+        let address = unsafe { core::slice::from_raw_parts_mut(BINARY_START, MAX_BINARY_SIZE) };
         match xmodem::Xmodem::receive(&mut uart, Cursor::new(address)) {
             Ok(_) => {
                 jump_to(BINARY_START);

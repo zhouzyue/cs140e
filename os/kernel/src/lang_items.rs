@@ -34,7 +34,7 @@ pub extern fn panic(_info: &PanicInfo) -> ! {
 use core::alloc::Layout;
 
 #[alloc_error_handler]
-pub fn rust_oom(layout: Layout) -> ! {
+pub fn rust_oom(_layout: Layout) -> ! {
 //    let hook = HOOK.load(Ordering::SeqCst);
 //    let hook: fn(Layout) = if hook.is_null() {
 //        default_alloc_error_hook

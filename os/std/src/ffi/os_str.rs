@@ -9,7 +9,7 @@
 // except according to those terms.
 
 use borrow::{Borrow, Cow};
-use fmt;
+use core::fmt;
 use ops;
 use cmp;
 use hash::{Hash, Hasher};

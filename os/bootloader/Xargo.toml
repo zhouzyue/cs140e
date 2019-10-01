@@ -1,10 +1,7 @@
 [dependencies]
 core = {}
-
-[dependencies.compiler_builtins]
-features = ["mem"]
-stage = 1
+alloc = {}
 
 [dependencies.std]
 path = "../std"
-stage = 2
+stage = 1

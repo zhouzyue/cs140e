@@ -7,6 +7,7 @@ use std::ops::{Div, Mul};
 /// # Panics
 ///
 /// Panics if `align` is not a power of 2.
+#[allow(dead_code)]
 pub fn align_down(addr: usize, align: usize) -> usize {
     assert!(align.is_power_of_two());
     addr.div(align).mul(align)
@@ -19,6 +20,7 @@ pub fn align_down(addr: usize, align: usize) -> usize {
 /// # Panics
 ///
 /// Panics if `align` is not a power of 2.
+#[allow(dead_code)]
 pub fn align_up(addr: usize, align: usize) -> usize {
     align_down(addr + align - 1, align)
 }

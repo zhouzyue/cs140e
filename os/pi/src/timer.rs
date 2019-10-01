@@ -1,6 +1,6 @@
 use common::IO_BASE;
 use volatile::{ReadVolatile, Volatile};
-use volatile::Readable;
+use volatile::{Readable, Writeable, ReadableWriteable};
 
 /// The base address for the ARM system timer registers.
 const TIMER_REG_BASE: usize = IO_BASE + 0x3000;
@@ -39,7 +39,9 @@ impl Timer {
     /// interrupts for timer 1 are enabled and IRQs are unmasked, then a timer
     /// interrupt will be issued in `us` microseconds.
     pub fn tick_in(&mut self, us: u32) {
-        unimplemented!()
+        let target = self.registers.CLO.read().wrapping_add(us);
+        self.registers.CS.or_mask(0b0010);
+        self.registers.COMPARE[1].write(target);
     }
 }
 
@@ -67,5 +69,5 @@ pub fn spin_sleep_ms(ms: u64) {
 /// interrupts for timer 1 are enabled and IRQs are unmasked, then a timer
 /// interrupt will be issued in `us` microseconds.
 pub fn tick_in(us: u32) {
-    unimplemented!()
+    Timer::new().tick_in(us)
 }

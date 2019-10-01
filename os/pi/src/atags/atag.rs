@@ -48,8 +48,6 @@ use core::str;
 
 impl<'a> From<&'a raw::Atag> for Atag {
     fn from(atag: &raw::Atag) -> Atag {
-        // FIXME: Complete the implementation below.
-
         unsafe {
             match (atag.tag, &atag.kind) {
                 (raw::Atag::CORE, &raw::Kind { core }) => Atag::Core(core),

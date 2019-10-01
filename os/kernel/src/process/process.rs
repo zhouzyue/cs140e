@@ -1,5 +1,8 @@
+use std::mem;
+
+use process::{Stack, State};
+use process::state::State::{Ready, Running, Waiting};
 use traps::TrapFrame;
-use process::{State, Stack};
 
 /// Type alias for the type of a process ID.
 pub type Id = u64;
@@ -22,7 +25,17 @@ impl Process {
     /// If enough memory could not be allocated to start the process, returns
     /// `None`. Otherwise returns `Some` of the new `Process`.
     pub fn new() -> Option<Process> {
-        unimplemented!("Process::new()")
+        let stack = Stack::new();
+        match stack {
+            Some(stack) => {
+                Some(Process {
+                    trap_frame: Box::new(TrapFrame::default()),
+                    stack,
+                    state: State::Ready,
+                })
+            }
+            None => None
+        }
     }
 
     /// Returns `true` if this process is ready to be scheduled.
@@ -40,6 +53,21 @@ impl Process {
     ///
     /// Returns `false` in all other cases.
     pub fn is_ready(&mut self) -> bool {
-        unimplemented!("Process::is_ready()")
+        match self.state {
+            Ready => true,
+            Running => true,
+            Waiting(_) => {
+                let mut state = mem::replace(&mut self.state, State::Running);
+                if let State::Waiting(ref mut event_poll_fn) = state {
+                    let ready = event_poll_fn(self);
+                    if !ready {
+                        self.state = state;
+                    }
+                    ready
+                } else {
+                    panic!("never here")
+                }
+            }
+        }
     }
 }

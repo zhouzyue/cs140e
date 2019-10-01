@@ -19,7 +19,15 @@ pub enum Interrupt {
 #[repr(C)]
 #[allow(non_snake_case)]
 struct Registers {
-    // FIXME: Fill me in.
+    BASIC_PENDING: ReadVolatile<u32>,
+    PENDING: [ReadVolatile<u32>; 2],
+    FIQ: Volatile<u32>,
+    INTERRUPT_ENABLE_1: Volatile<u32>,
+    INTERRUPT_ENABLE_2: Volatile<u32>,
+    BASE_INTERRUPT_ENABLE: Volatile<u32>,
+    INTERRUPT_DISABLE_1: Volatile<u32>,
+    INTERRUPT_DISABLE_2: Volatile<u32>,
+    BASE_DISABLE: Volatile<u32>,
 }
 
 /// An interrupt controller. Used to enable and disable interrupts as well as to
@@ -38,16 +46,31 @@ impl Controller {
 
     /// Enables the interrupt `int`.
     pub fn enable(&mut self, int: Interrupt) {
-        unimplemented!()
+        let bit = int as u32;
+        if bit < 32 {
+            self.registers.INTERRUPT_ENABLE_1.or_mask(1 << bit);
+        } else {
+            self.registers.INTERRUPT_ENABLE_2.or_mask(1 << (bit - 32));
+        }
     }
 
     /// Disables the interrupt `int`.
     pub fn disable(&mut self, int: Interrupt) {
-        unimplemented!()
+        let bit = int as u32;
+        if bit < 32 {
+            self.registers.INTERRUPT_DISABLE_1.or_mask(1 << bit);
+        } else {
+            self.registers.INTERRUPT_DISABLE_2.or_mask(1 << (bit - 32));
+        }
     }
 
     /// Returns `true` if `int` is pending. Otherwise, returns `false`.
     pub fn is_pending(&self, int: Interrupt) -> bool {
-        unimplemented!()
+        let bit = int as u32;
+        if bit < 32 {
+            self.registers.PENDING[0].has_mask(1 << bit)
+        } else {
+            self.registers.PENDING[1].has_mask(1 << (bit - 32))
+        }
     }
 }

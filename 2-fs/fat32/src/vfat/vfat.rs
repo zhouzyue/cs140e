@@ -27,30 +27,35 @@ impl VFat {
         where T: BlockDevice + 'static
     {
         let mbr = MasterBootRecord::from(&mut device).unwrap();
-        let partition_start = mbr.get_partition(0).relative_sector as u64;
+        for i in 0..4 {
+            let partition = mbr.get_partition(0);
+            match partition.partition_type {
+                0xB | 0xC => {
+                    let partition_start = partition.relative_sector as u64;
+                    let ebpb = BiosParameterBlock::from(&mut device, partition_start).unwrap();
+                    let partition = Partition {
+                        start: partition_start,
+                        sector_size: ebpb.bytes_per_sector as u64,
+                    };
 
-        let ebpb = BiosParameterBlock::from(&mut device, partition_start).unwrap();
-
-        let partition = Partition {
-            start: partition_start,
-            sector_size: ebpb.bytes_per_sector as u64,
-        };
-
-        let cached_device = CachedDevice::new(device, partition);
-
-        let fat_start_sector = partition_start + ebpb.reserved_sectors as u64;
-        let data_start_sector = fat_start_sector + ebpb.sector_per_fat_32 as u64 * ebpb.number_of_fat as u64;
-        let vfat = VFat {
-            device: cached_device,
-            bytes_per_sector: ebpb.bytes_per_sector,
-            sectors_per_cluster: ebpb.sectors_per_cluster,
-            sectors_per_fat: ebpb.sector_per_fat_32,
-            fat_start_sector,
-            data_start_sector,
-            root_dir_cluster: Cluster::from(ebpb.root_dir_cluster_number),
-        };
-
-        Ok(Shared::new(vfat))
+                    let cached_device = CachedDevice::new(device, partition);
+                    let fat_start_sector = partition_start + ebpb.reserved_sectors as u64;
+                    let data_start_sector = fat_start_sector + ebpb.sector_per_fat_32 as u64 * ebpb.number_of_fat as u64;
+                    let vfat = VFat {
+                        device: cached_device,
+                        bytes_per_sector: ebpb.bytes_per_sector,
+                        sectors_per_cluster: ebpb.sectors_per_cluster,
+                        sectors_per_fat: ebpb.sector_per_fat_32,
+                        fat_start_sector,
+                        data_start_sector,
+                        root_dir_cluster: Cluster::from(ebpb.root_dir_cluster_number),
+                    };
+                    return Ok(Shared::new(vfat));
+                }
+                _ => {}
+            }
+        }
+        Err(Error::Io(io::Error::new(io::ErrorKind::InvalidData, "fat32 partition not found")))
     }
 
     // TODO: The following methods may be useful here:
@@ -98,11 +103,11 @@ impl VFat {
                 Status::Data(next_cluster) => {
                     bytes_read += self.append_result(cur_cluster, buf, cluster_num)?;
                     cur_cluster = next_cluster;
-                },
+                }
                 Status::Eoc(_) => {
                     bytes_read += self.append_result(cur_cluster, buf, cluster_num)?;
                     return Ok(bytes_read);
-                },
+                }
                 _ => return Err(io::Error::new(io::ErrorKind::InvalidData, "invalid cluster chain")),
             }
         }
@@ -131,7 +136,6 @@ impl VFat {
         let entry = unsafe { &data[index..index + fat_width].cast()[0] };
         Ok(entry)
     }
-
 }
 
 impl<'a> FileSystem for &'a Shared<VFat> {
@@ -148,13 +152,13 @@ impl<'a> FileSystem for &'a Shared<VFat> {
                     dir = dir.into_dir()
                         .ok_or(io::Error::new(io::ErrorKind::NotFound, ""))?
                         .find(name)?;
-                },
+                }
                 Component::ParentDir => {
                     dir = dir.into_dir()
                         .ok_or(io::Error::new(io::ErrorKind::NotFound, ""))?
                         .find("..")?;
-                },
-                _ => {},
+                }
+                _ => {}
             }
         }
         Ok(dir)

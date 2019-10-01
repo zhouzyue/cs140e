@@ -10,7 +10,7 @@
 
 use cmp;
 use io::{self, SeekFrom, Read, Initializer, Write, Seek, BufRead, Error, ErrorKind};
-use fmt;
+use core::fmt;
 use mem;
 
 // =============================================================================

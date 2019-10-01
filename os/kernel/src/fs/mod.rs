@@ -1,8 +1,5 @@
-use std::io;
-use std::path::Path;
-
 pub use fat32::traits;
-use fat32::vfat::{self, Shared, VFat};
+use fat32::vfat::{Shared, VFat};
 use mutex::Mutex;
 
 use self::sd::Sd;

@@ -34,7 +34,7 @@ pub struct BiosParameterBlock {
     volume_label: [u8; 11],
     identifier_string: [u8; 8],
     boot_code: [u8; 420],
-    bootable_partition_signature: u16
+    bootable_partition_signature: u16,
 }
 
 impl BiosParameterBlock {
@@ -46,7 +46,7 @@ impl BiosParameterBlock {
     /// If the EBPB signature is invalid, returns an error of `BadSignature`.
     pub fn from<T: BlockDevice>(
         mut device: T,
-        sector: u64
+        sector: u64,
     ) -> Result<BiosParameterBlock, Error> {
         let mut buf = [0u8; 512];
         let bytes = device.read_sector(sector, &mut buf)?;

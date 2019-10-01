@@ -1,11 +1,12 @@
 use stack_vec::StackVec;
 use console::{kprint, CONSOLE};
 use std::str;
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 use FILE_SYSTEM;
 use fat32::traits::{FileSystem, Dir as _Dir, Entry};
 use fat32::vfat::Dir;
 use std::io::{Read, Seek, SeekFrom};
+use std::str::FromStr;
 
 /// Error type for `Command` parse failures.
 #[derive(Debug)]
@@ -46,21 +47,29 @@ impl<'a> Command<'a> {
     }
 }
 
+pub extern fn run_shell() {
+    shell("user0> ");
+}
+
+pub extern fn run_shell2() {
+    shell("user1> ");
+}
+
 /// Starts a shell using `prefix` as the prefix for each line. This function
 /// never returns: it is perpetually in a shell loop.
-pub fn shell(prefix: &str) -> ! {
-    let mut storage = [0u8; 512];
-    let mut buf = StackVec::new(&mut storage);
-
+pub fn shell(prefix: &str) {
     print_shell();
-    let mut pwd = PathBuf::from("/");
-
     kprint!("initializing....\r\n");
 
-    loop {
+    let mut storage = [0u8; 512];
+    let mut buf = StackVec::new(&mut storage);
+    let mut pwd = PathBuf::from("/");
+
+    let mut exit = false;
+    while !exit {
         kprint!("{} {}", pwd.to_str().unwrap(), prefix);
         read_command(&mut buf);
-        execute_command(&mut buf, &mut pwd);
+        exit = execute_command(&mut buf, &mut pwd);
     }
 }
 
@@ -77,13 +86,7 @@ fn read_command(mut buf: &mut StackVec<u8>) {
 }
 
 fn print_shell() {
-    new_line();
-    kprint!("{}", "this is a super shell");
-    new_line();
-}
-
-fn new_line() {
-    kprint!("\r\n");
+    kprint!("{}\r\n", "this is a super shell");
 }
 
 fn ring_bell() {
@@ -99,17 +102,19 @@ fn backspace(buf: &mut StackVec<u8>) {
     }
 }
 
-fn execute_command(buf: &mut StackVec<u8>, pwd: &mut PathBuf) {
-    new_line();
+fn execute_command(buf: &mut StackVec<u8>, pwd: &mut PathBuf) -> bool {
+    kprint!("\r\n");
     match Command::parse(str::from_utf8(buf.as_slice()).unwrap(), &mut [""; 64]) {
         Ok(input) => {
-            let mut cmd = input.path();
+            let cmd = input.path();
             match cmd {
                 "echo" => shell_echo(&input.args[1..]),
                 "ls" => shell_ls(pwd),
                 "cd" => shell_cd(pwd, &input.args[1..]),
                 "pwd" => shell_pwd(pwd),
                 "cat" => shell_cat(pwd, &input.args[1..]),
+                "exit" => return true,
+                "sleep" => shell_sleep(&input.args[1]),
                 _ => kprint!("unknown command: {}\r\n", cmd),
             }
         }
@@ -120,6 +125,7 @@ fn execute_command(buf: &mut StackVec<u8>, pwd: &mut PathBuf) {
     }
 
     buf.truncate(0);
+    false
 }
 
 fn store_command(buf: &mut StackVec<u8>, input: u8) {
@@ -150,7 +156,7 @@ fn shell_echo(args: &[&str]) {
     for arg in args {
         kprint!("{} ", arg);
     }
-    new_line();
+    kprint!("\r\n");
 }
 
 fn shell_cd(pwd: &mut PathBuf, args: &[&str]) {
@@ -185,7 +191,7 @@ fn shell_cat(pwd: &mut PathBuf, args: &[&str]) {
             Ok(mut f) => {
                 let mut offset = 0;
                 loop {
-                    f.seek(SeekFrom::Current(offset));
+                    let _ = f.seek(SeekFrom::Current(offset));
                     let mut buf = [0u8; 512];
                     let bytes_read = f.read(&mut buf).unwrap() as i64;
                     if bytes_read == 0 {
@@ -198,5 +204,31 @@ fn shell_cat(pwd: &mut PathBuf, args: &[&str]) {
             }
             Err(err) => kprint!("{}\r\n",err)
         }
+    }
+}
+
+fn shell_sleep(arg: &str) {
+    let ms = u32::from_str(arg).unwrap();
+    let actual = sys_call_sleep(ms).unwrap();
+    kprint!("elapsed {} ms\r\n", actual);
+}
+
+fn sys_call_sleep(ms: u32) -> Result<u32, std::io::Error> {
+    let error: u64;
+    let result: u64;
+    unsafe {
+        asm!("mov x0, $2
+              svc 1
+              mov $0, x0
+              mov $1, x7"
+              : "=r"(result), "=r"(error)
+              : "r"(ms)
+              : "x0", "x7")
+    }
+
+    if error != 0 {
+        Err(std::io::Error::new(std::io::ErrorKind::Other, ""))
+    } else {
+        Ok(result as u32)
     }
 }

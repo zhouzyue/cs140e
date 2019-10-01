@@ -22,40 +22,43 @@ struct Opt {
     input: Option<PathBuf>,
 
     #[structopt(short = "b", long = "baud", parse(try_from_str = "parse_baud_rate"),
-                help = "Set baud rate", default_value = "115200")]
+    help = "Set baud rate", default_value = "115200")]
     baud_rate: BaudRate,
 
     #[structopt(short = "t", long = "timeout", parse(try_from_str),
-                help = "Set timeout in seconds", default_value = "10")]
+    help = "Set timeout in seconds", default_value = "10")]
     timeout: u64,
 
     #[structopt(short = "w", long = "width", parse(try_from_str = "parse_width"),
-                help = "Set data character width in bits", default_value = "8")]
+    help = "Set data character width in bits", default_value = "8")]
     char_width: CharSize,
 
     #[structopt(help = "Path to TTY device", parse(from_os_str))]
     tty_path: PathBuf,
 
     #[structopt(short = "f", long = "flow-control", parse(try_from_str = "parse_flow_control"),
-                help = "Enable flow control ('hardware' or 'software')", default_value = "none")]
+    help = "Enable flow control ('hardware' or 'software')", default_value = "none")]
     flow_control: FlowControl,
 
     #[structopt(short = "s", long = "stop-bits", parse(try_from_str = "parse_stop_bits"),
-                help = "Set number of stop bits", default_value = "1")]
+    help = "Set number of stop bits", default_value = "1")]
     stop_bits: StopBits,
 
     #[structopt(short = "r", long = "raw", help = "Disable XMODEM")]
     raw: bool,
 }
 
+static mut FILE_SIZE: u64 = 0;
+static mut SENT: u64 = 0;
+
 fn main() {
     use std::fs::File;
+    use std::fs;
     use std::io::{self, BufReader};
 
     let opt = Opt::from_args();
     let mut serial = serial::open(&opt.tty_path).expect("path points to invalid TTY");
 
-    // FIXME: Implement the `ttywrite` utility.
     let mut settings = serial.read_settings().expect("");
     settings.set_char_size(opt.char_width);
     settings.set_stop_bits(opt.stop_bits);
@@ -66,6 +69,12 @@ fn main() {
 
     let mut reader: Box<dyn io::Read> = match opt.input {
         Some(ref path) => {
+            let metadata = fs::metadata(path).expect("file not exists!");
+            unsafe {
+                FILE_SIZE = metadata.len();
+                print!("file size:{}\n", FILE_SIZE);
+            }
+
             let file = File::open(path).expect("file not exist!");
             Box::new(BufReader::new(file))
         }
@@ -82,5 +91,13 @@ fn main() {
 }
 
 fn progress_fn(progress: Progress) {
-    println!("Progress: {:?}", progress);
+    match progress {
+        Progress::Packet(packet) => {
+            unsafe {
+                SENT += 128 as u64;
+                println!("Progress: {}%", 100 * SENT / FILE_SIZE);
+            }
+        }
+        _ => println!("Progress: {:?}", progress),
+    }
 }

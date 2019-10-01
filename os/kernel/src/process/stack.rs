@@ -1,12 +1,11 @@
 use std::fmt;
 use std::ptr::Unique;
 
-//use super::super::ALLOCATOR;
-use core::alloc::{Alloc, Layout, GlobalAlloc};
+use core::alloc::{Layout, GlobalAlloc};
 use vm::PhysicalAddr;
 use crate::ALLOCATOR;
 
-/// A process stack. The default size is 1M1B with an alignment of 16 bytes.
+/// A process stack. The default size is 1MiB with an alignment of 16 bytes.
 pub struct Stack {
     ptr: Unique<[u8; Stack::SIZE]>
 }

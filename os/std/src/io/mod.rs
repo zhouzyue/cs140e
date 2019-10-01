@@ -1,9 +1,11 @@
 #![stable(feature = "rust1", since = "1.0.0")]
 
+//extern crate alloc;
+
 use cmp;
 use core::str as core_str;
 use error as std_error;
-use fmt;
+use core::fmt;
 use result;
 use str;
 use memchr;
@@ -19,14 +21,6 @@ pub use self::cursor::Cursor;
 pub use self::error::{Result, Error, ErrorKind};
 #[stable(feature = "rust1", since = "1.0.0")]
 pub use self::util::{copy, sink, Sink, empty, Empty, repeat, Repeat};
-//- #[stable(feature = "rust1", since = "1.0.0")]
-//- pub use self::stdio::{stdin, stdout, stderr, Stdin, Stdout, Stderr};
-//- #[stable(feature = "rust1", since = "1.0.0")]
-//- pub use self::stdio::{StdoutLock, StderrLock, StdinLock};
-//- #[unstable(feature = "print_internals", issue = "0")]
-//- #[unstable(feature = "libstd_io_internals", issue = "42788")]
-//- #[doc(no_inline, hidden)]
-//- pub use self::stdio::{set_panic, set_print};
 
 pub mod prelude;
 mod buffered;
@@ -1488,23 +1482,6 @@ impl<R: Read> Iterator for Chars<R> {
         })
     }
 }
-
-//#[unstable(feature = "io", reason = "awaiting stability of Read::chars",
-//           issue = "27802")]
-//impl std_error::Error for CharsError {
-//    fn description(&self) -> &str {
-//        match *self {
-//            CharsError::NotUtf8 => "invalid utf8 encoding",
-//            CharsError::Other(ref e) => std_error::Error::description(e),
-//        }
-//    }
-//    fn cause(&self) -> Option<&dyn std_error::Error> {
-//        match *self {
-//            CharsError::NotUtf8 => None,
-//            CharsError::Other(ref e) => e.cause(),
-//        }
-//    }
-//}
 
 #[unstable(feature = "io", reason = "awaiting stability of Read::chars",
            issue = "27802")]

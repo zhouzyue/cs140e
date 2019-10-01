@@ -1,16 +1,15 @@
+use pi::interrupt::{Controller, Interrupt};
+use shell::shell;
+
+use self::irq::handle_irq;
+use self::syndrome::Syndrome;
+use self::syscall::handle_syscall;
+pub use self::trap_frame::TrapFrame;
+
 mod irq;
 mod trap_frame;
 mod syndrome;
 mod syscall;
-
-use pi::interrupt::{Controller, Interrupt};
-
-pub use self::trap_frame::TrapFrame;
-
-use console::kprintln;
-use self::syndrome::Syndrome;
-use self::irq::handle_irq;
-use self::syscall::handle_syscall;
 
 #[repr(u16)]
 #[derive(Debug, PartialEq, Eq, Copy, Clone)]
@@ -43,5 +42,23 @@ pub struct Info {
 /// the trap frame for the exception.
 #[no_mangle]
 pub extern fn handle_exception(info: Info, esr: u32, tf: &mut TrapFrame) {
-    unimplemented!("handle_exception")
+    let syndrome = Syndrome::from(esr);
+    if info.kind == Kind::Synchronous {
+        match syndrome {
+            Syndrome::Svc(num) => {
+                handle_syscall(num, tf)
+            }
+            Syndrome::Brk(_) => {
+                shell("! ");
+                tf.elr += 4;
+                return;
+            }
+            _ => {}
+        }
+    } else if info.kind == Kind::Irq {
+        if Controller::new().is_pending(Interrupt::Timer1) {
+            handle_irq(Interrupt::Timer1, tf);
+        }
+        return;
+    }
 }

@@ -1,8 +1,6 @@
-use std::intrinsics::type_id;
 use std::io;
 
 use fat32::traits::BlockDevice;
-use fat32::vfat::Timestamp;
 use pi::timer;
 
 extern "C" {
@@ -38,7 +36,6 @@ pub fn wait_micros(ms: u32) {
 
 #[derive(Debug)]
 pub enum Error {
-    // FIXME: Fill me in.
     Timeout,
     SendingCommandErr,
     Unknown,

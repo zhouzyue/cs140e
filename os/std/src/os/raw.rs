@@ -12,7 +12,7 @@
 
 #![stable(feature = "raw_os", since = "1.1.0")]
 
-use fmt;
+use core::fmt;
 
 #[cfg(any(all(target_os = "linux", any(target_arch = "aarch64",
                                        target_arch = "arm",

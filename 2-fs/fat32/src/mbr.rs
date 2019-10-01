@@ -22,8 +22,8 @@ pub struct PartitionEntry {
     // FIXME: Fill me in.
     boot_indicator: u8,
     starting_chs: CHS,
+    pub partition_type: u8,
     ending_chs: CHS,
-    partition_type: u8,
     pub relative_sector: u32,
     sectors: u32,
 }
@@ -63,15 +63,15 @@ impl MasterBootRecord {
     /// boot indicator. Returns `Io(err)` if the I/O error `err` occured while
     /// reading the MBR.
     pub fn from<T: BlockDevice>(mut device: T) -> Result<MasterBootRecord, Error> {
-        let mut sector = [0u8; 512];
-        let bytes = device.read_sector(0, &mut sector)?;
+        let mut data = [0u8; 512];
+        let bytes = device.read_sector(0, &mut data)?;
 
         if bytes != 512 {
             return Err(Error::Io(io::Error::new(io::ErrorKind::UnexpectedEof, "MBR should be 512 bytes")));
         }
 
         let mbr: MasterBootRecord = unsafe {
-            std::mem::transmute(sector)
+            core::intrinsics::transmute(data)
         };
 
         if mbr.signature != 0xAA55 {

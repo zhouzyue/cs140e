@@ -10,7 +10,7 @@
 
 #![allow(missing_copy_implementations)]
 
-use fmt;
+use core::fmt;
 use io::{self, Read, Initializer, Write, ErrorKind, BufRead};
 use mem;
 

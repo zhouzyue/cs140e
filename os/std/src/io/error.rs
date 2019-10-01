@@ -9,7 +9,7 @@
 // except according to those terms.
 
 use error;
-use fmt;
+use core::fmt;
 use result;
 use sys;
 use convert::From;
@@ -524,9 +524,9 @@ impl fmt::Debug for Repr {
 //                    .field("kind", &sys::decode_error_kind(code))
                     .field("message", &sys::os::error_string(code)).finish(),
 //            Repr::Custom(ref c) => fmt::Debug::fmt(&c, fmt),
-            Repr::Custom(ref c) => fmt.debug_struct("custom").finish(),
 //            Repr::Simple(kind) => fmt.debug_tuple("Kind").field(&kind).finish(),
             Repr::Simple(kind) => fmt.debug_tuple("Kind").finish(),
+            _=>{Ok(())}
         }
     }
 }
