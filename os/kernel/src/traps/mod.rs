@@ -11,6 +11,8 @@ mod trap_frame;
 mod syndrome;
 mod syscall;
 
+use aarch64;
+
 #[repr(u16)]
 #[derive(Debug, PartialEq, Eq, Copy, Clone)]
 pub enum Kind {
@@ -36,12 +38,15 @@ pub struct Info {
     kind: Kind,
 }
 
+use console::kprint;
+
 /// This function is called when an exception occurs. The `info` parameter
 /// specifies the source and kind of exception that has occurred. The `esr` is
 /// the value of the exception syndrome register. Finally, `tf` is a pointer to
 /// the trap frame for the exception.
 #[no_mangle]
 pub extern fn handle_exception(info: Info, esr: u32, tf: &mut TrapFrame) {
+//    kprint!("exception {:?}\r\n", info);
     let syndrome = Syndrome::from(esr);
     if info.kind == Kind::Synchronous {
         match syndrome {
@@ -53,12 +58,19 @@ pub extern fn handle_exception(info: Info, esr: u32, tf: &mut TrapFrame) {
                 tf.elr += 4;
                 return;
             }
-            _ => {}
+            other => {
+                kprint!("syndrome {:?}", other);
+            }
         }
     } else if info.kind == Kind::Irq {
         if Controller::new().is_pending(Interrupt::Timer1) {
+//            use pi::timer::current_time;
+//            kprint!("handling timer irq {}\r\n", current_time() / 1000);
             handle_irq(Interrupt::Timer1, tf);
         }
         return;
+    }
+    loop {
+        aarch64::nop();
     }
 }

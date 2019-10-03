@@ -27,7 +27,7 @@ impl VFat {
         where T: BlockDevice + 'static
     {
         let mbr = MasterBootRecord::from(&mut device).unwrap();
-        for i in 0..4 {
+        for _ in 0..4 {
             let partition = mbr.get_partition(0);
             match partition.partition_type {
                 0xB | 0xC => {

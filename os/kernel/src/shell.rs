@@ -7,6 +7,7 @@ use fat32::traits::{FileSystem, Dir as _Dir, Entry};
 use fat32::vfat::Dir;
 use std::io::{Read, Seek, SeekFrom};
 use std::str::FromStr;
+use pi::timer::current_time;
 
 /// Error type for `Command` parse failures.
 #[derive(Debug)]
@@ -115,6 +116,7 @@ fn execute_command(buf: &mut StackVec<u8>, pwd: &mut PathBuf) -> bool {
                 "cat" => shell_cat(pwd, &input.args[1..]),
                 "exit" => return true,
                 "sleep" => shell_sleep(&input.args[1]),
+                "time" => shell_time(),
                 _ => kprint!("unknown command: {}\r\n", cmd),
             }
         }
@@ -231,4 +233,8 @@ fn sys_call_sleep(ms: u32) -> Result<u32, std::io::Error> {
     } else {
         Ok(result as u32)
     }
+}
+
+fn shell_time() {
+    kprint!("{}\r\n", current_time());
 }

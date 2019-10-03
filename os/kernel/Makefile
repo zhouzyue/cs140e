@@ -6,7 +6,7 @@ TTYWRITE ?= ttywrite
 PI_TTY ?= /dev/tty.SLAB_USBtoUART
 CCFLAGS ?= -Wall -O2 -nostdlib -nostartfiles -ffreestanding -pie -fpie
 LDFLAGS ?= --gc-sections -static -nostdlib -nostartfiles --no-dynamic-linker
-XARGO ?= CARGO_INCREMENTAL=0 RUST_TARGET_PATH="$(shell pwd)" xargo
+XARGO ?= CARGO_INCREMENTAL=0 RUST_TARGET_PATH="$(shell pwd)" cargo
 CARGO ?= cargo
 
 LD_LAYOUT := ext/layout.ld
@@ -20,7 +20,7 @@ RUST_LIB_DEPS = ../pi/src/* ../pi/src/*/** \
 				../../1-shell/stack-vec/src/* \
 				../../2-fs/fat32/src/* ../../2-fs/fat32/src/*/**
 
-RUST_DEPS = Xargo.toml Cargo.toml build.rs $(LD_LAYOUT) src/* $(RUST_LIB_DEPS)
+RUST_DEPS = Cargo.toml build.rs $(LD_LAYOUT) src/* $(RUST_LIB_DEPS)
 EXT_DEPS = $(BUILD_DIR)/init.o
 
 BUILD_DIR := build
@@ -44,11 +44,11 @@ install: $(KERNEL).bin
 
 $(RUST_DEBUG_LIB): $(RUST_DEPS)
 	@echo "+ Building $@ [xargo]"
-	@$(XARGO) build --target=$(TARGET)
+	@$(XARGO) xbuild --target=$(TARGET)
 
 $(RUST_RELEASE_LIB): $(RUST_DEPS)
 	@echo "+ Building $@ [xargo --release]"
-	@$(XARGO) build --release --verbose --target=$(TARGET)
+	@$(XARGO) xbuild --release --verbose --target=$(TARGET)
 
 ifeq ($(DEBUG),1)
 $(RUST_LIB): $(RUST_DEBUG_LIB) | $(BUILD_DIR)

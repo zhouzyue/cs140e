@@ -48,7 +48,9 @@ pub static FILE_SYSTEM: FileSystem = FileSystem::uninitialized();
 
 pub static SCHEDULER: GlobalScheduler = GlobalScheduler::uninitialized();
 
-use console::kprint;
+//qemu-system-aarch64 -M raspi3 \
+// -serial null -serial mon:stdio \
+// -kernel build/kernel.bin -s -sd ../files/sd.img
 
 #[no_mangle]
 #[cfg(not(test))]

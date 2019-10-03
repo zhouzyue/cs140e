@@ -3,11 +3,9 @@
 #![feature(asm)]
 #![feature(decl_macro)]
 #![feature(never_type)]
-#![cfg_attr(not(feature = "std"), no_std)]
+#![no_std]
 
-#[cfg(feature = "std")]
-#[macro_use]
-extern crate core;
+extern crate std;
 extern crate volatile;
 
 pub mod atags;

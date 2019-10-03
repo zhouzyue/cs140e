@@ -147,7 +147,6 @@ impl fmt::Write for MiniUart {
     }
 }
 
-#[cfg(feature = "std")]
 mod uart_io {
     use super::MiniUart;
     use std::io;
